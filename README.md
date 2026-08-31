@@ -56,15 +56,39 @@ chmod +x credwalk.sh
 Examples (defaults):
 
 ```bash
-./credwalk.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+./credwalk.sh usererrr 'p4ssw0rdl3ss' 192.168.118.129 192.168.118.130 192.168.118.131
 ./credwalk.sh $user1 $pass1 $target1 $target2 $target3
 ```
 
 Examples (custom concurrency and timeouts — higher job cap, shorter delay, faster port probe, longer nxc window):
 
 ```bash
-./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 usererrr 'p4ssw0rdl3ss' 192.168.118.129 192.168.118.130 192.168.118.131
 ./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 $user1 $pass1 $target1 $target2 $target3
+```
+
+Example output
+```bash
+WINRM       192.168.118.129 5985   DC01             [*] Windows Server 2022 Build 20348 (name:DC01) (domain:ch3ckm8.local) 
+WINRM       192.168.118.129 5985   DC01             [-] ch3ckm8.local\usererrr:p4ssw0rdl3ss
+SMB         192.168.118.129 445    DC01             [*] Windows Server 2022 Build 20348 x64 (name:DC01) (domain:ch3ckm8.local) (signing:True) (SMBv1:None) (Null Auth:True)
+SMB         192.168.118.129 445    DC01             [+] ch3ckm8.local\usererrr:p4ssw0rdl3ss 
+LDAP        192.168.118.129 389    DC01             [*] Windows Server 2022 Build 20348 (name:DC01) (domain:ch3ckm8.local) (signing:None) (channel binding:No TLS cert) 
+LDAP        192.168.118.129 389    DC01             [+] ch3ckm8.local\usererrr:p4ssw0rdl3ss 
+RPC         192.168.118.129 135    DC01             [*] Windows Server 2022 Build 20348 (name:DC01) (domain:ch3ckm8.local)
+RPC         192.168.118.129 135    DC01             [+] ch3ckm8.local\usererrr:p4ssw0rdl3ss 
+WINRM       192.168.118.130 5985   WS02             [*] Windows Server 2022 Build 20348 (name:WS02) (domain:ch3ckm8.local) 
+WINRM       192.168.118.130 5985   WS02             [-] ch3ckm8.local\usererrr:p4ssw0rdl3ss
+SMB         192.168.118.130 445    WS02             [*] Windows Server 2022 Build 20348 x64 (name:WS02) (domain:ch3ckm8.local) (signing:False) (SMBv1:None)
+SMB         192.168.118.130 445    WS02             [+] ch3ckm8.local\usererrr:p4ssw0rdl3ss 
+RPC         192.168.118.130 135    WS02             [*] Windows Server 2022 Build 20348 (name:WS02) (domain:ch3ckm8.local)
+RPC         192.168.118.130 135    WS02             [+] ch3ckm8.local\usererrr:p4ssw0rdl3ss 
+WINRM       192.168.118.131 5985   WS01             [*] Windows Server 2022 Build 20348 (name:WS01) (domain:ch3ckm8.local) 
+WINRM       192.168.118.131 5985   WS01             [-] ch3ckm8.local\usererrr:p4ssw0rdl3ss
+SMB         192.168.118.131 445    WS01             [*] Windows Server 2022 Build 20348 x64 (name:WS01) (domain:ch3ckm8.local) (signing:False) (SMBv1:None)
+SMB         192.168.118.131 445    WS01             [+] ch3ckm8.local\usererrr:p4ssw0rdl3ss 
+RPC         192.168.118.131 135    WS01             [*] Windows Server 2022 Build 20348 (name:WS01) (domain:ch3ckm8.local)
+RPC         192.168.118.131 135    WS01             [+] ch3ckm8.local\usererrr:p4ssw0rdl3ss
 ```
 
 Any number of hosts can be passed — the script loops over every host/service pair automatically.
