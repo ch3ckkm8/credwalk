@@ -16,8 +16,10 @@
 #   -n N   Seconds to allow each nxc authentication attempt to run (default: 15)
 #
 # Examples:
-#   ./credwalk.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
-#   ./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130
+#   ./credwalk.sh usererrr 'p4ssw0rdl3ss' 192.168.118.129 192.168.118.130 192.168.118.131
+#   ./credwalk.sh $user1 $pass1 $target1 $target2 $target3
+#   ./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 usererrr 'p4ssw0rdl3ss' 192.168.118.129 192.168.118.130 192.168.118.131
+#   ./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 $user1 $pass1 $target1 $target2 $target3
 
 printf '%s\n' '
 
