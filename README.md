@@ -30,11 +30,11 @@ This avoids the noise and wasted time of blindly firing `nxc` at every service o
 
 ## Usage
 
-The sweep is packaged as `cred_spray.sh`, taking the username, password, and target hosts as command-line arguments, with optional flags for concurrency tuning:
+The sweep is packaged as `cred_spray.sh`, taking the username, password, and target hosts as command-line arguments, with optional flags for concurrency and timeout tuning:
 
 ```bash
 chmod +x cred_spray.sh
-./cred_spray.sh [-j max_jobs] [-d launch_delay] <user> <pass> <host1> [host2] [host3] ...
+./cred_spray.sh [-j max_jobs] [-d launch_delay] [-t probe_timeout] [-n nxc_timeout] <user> <pass> <host1> [host2] [host3] ...
 ```
 
 Example (defaults):
@@ -43,10 +43,10 @@ Example (defaults):
 ./cred_spray.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
 ```
 
-Example (custom concurrency — higher job cap, shorter delay for a bigger/stabler network):
+Example (custom concurrency and timeouts — higher job cap, shorter delay, faster port probe, longer nxc window):
 
 ```bash
-./cred_spray.sh -j 20 -d 0.1 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+./cred_spray.sh -j 20 -d 0.1 -t 5 -n 20 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
 ```
 
 Any number of hosts can be passed — the script loops over every host/service pair automatically.
@@ -57,8 +57,8 @@ Any number of hosts can be passed — the script loops over every host/service p
 
 - `-j N` — maximum number of concurrent probe/`nxc` jobs (default `10`). Lower this for smaller or more sensitive environments; raise it on stable networks for more throughput.
 - `-d N` — seconds to sleep between launching each job (default `0.3`), smoothing bursts within the concurrency cap. Accepts fractional values (e.g. `0.1`).
-- `timeout 15` on the `/dev/tcp` probe — how long to wait for a TCP connect before declaring the port closed. (Fixed in the script; edit the `timeout 15` before the `/dev/tcp` check if you need to change it.)
-- `timeout 15` on the `nxc` call — how long to allow each authentication attempt to run before killing it. (Also fixed; edit the corresponding `timeout 15` before the `nxc` call if needed.)
+- `-t N` — seconds to wait on the `/dev/tcp` port probe before declaring it closed (default `15`). Lower this on fast, low-latency networks to skip closed ports quicker; raise it on slow or high-latency links to avoid false negatives.
+- `-n N` — seconds to allow each `nxc` authentication attempt to run before it's killed (default `15`). Raise this for slower or heavily loaded services (SMB, WinRM in particular can be sluggish); lower it to fail fast and speed up the overall sweep.
 
 These defaults are tuned to scale safely to larger host lists without overwhelming targets or triggering connection resets — see [Design notes](#design-notes) below.
 
@@ -71,7 +71,7 @@ These defaults are tuned to scale safely to larger host lists without overwhelmi
 ## Design notes
 
 - **Why a standalone script instead of a one-liner?** Taking `user`, `pass`, and `hosts` as arguments avoids hardcoding credentials or targets into the file, and running as a real script (rather than pasting into `bash -c '...'`) means it can be dropped into a `$PATH` directory, version-controlled, and reused without re-typing a long inline command each time.
-- **Why flags instead of editing the script?** `-j`/`-d` let you tune concurrency per-run (e.g. more aggressive on a stable internal lab, more conservative against a fragile or monitored target) without modifying the script itself — keeping it safe to reuse as-is across engagements.
+- **Why flags instead of editing the script?** `-j`/`-d`/`-t`/`-n` let you tune concurrency and timeouts per-run (e.g. more aggressive on a stable internal lab, more conservative against a fragile or monitored target) without modifying the script itself — keeping it safe to reuse as-is across engagements.
 - **Why `/dev/tcp` instead of `nmap`?** It keeps the tool self-contained with zero external dependencies beyond Bash and `nxc`. For very large host lists, a single batched `nmap` scan feeding into `nxc` is faster and less "noisy" on the wire (one SYN scan vs. many individual full TCP connects) — worth switching to at scale.
 - **Concurrency model:** every host/service pair gets its own subshell and background job, but a `jobs -rp | wc -l` check before each launch caps how many run simultaneously (`max_jobs`), with `wait -n` used to free a slot as soon as any job finishes. A small `sleep` between launches further smooths bursts. This keeps runtime scaling roughly linearly with total host/service pairs instead of firing everything at once, which is what caused connection resets (`Connection reset by peer`) against some services (SMB and WinRM in particular) when scanning many targets in parallel with no cap.
 
