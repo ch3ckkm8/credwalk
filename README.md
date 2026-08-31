@@ -30,23 +30,23 @@ This avoids the noise and wasted time of blindly firing `nxc` at every service o
 
 ## Usage
 
-The sweep is packaged as `sweep.sh`, taking the username, password, and target hosts as command-line arguments, with optional flags for concurrency tuning:
+The sweep is packaged as `cred_spray.sh`, taking the username, password, and target hosts as command-line arguments, with optional flags for concurrency tuning:
 
 ```bash
-chmod +x sweep.sh
-./sweep.sh [-j max_jobs] [-d launch_delay] <user> <pass> <host1> [host2] [host3] ...
+chmod +x cred_spray.sh
+./cred_spray.sh [-j max_jobs] [-d launch_delay] <user> <pass> <host1> [host2] [host3] ...
 ```
 
 Example (defaults):
 
 ```bash
-./sweep.sh shannon 'GoldSeagull123' 192.168.118.129 192.168.118.130 192.168.118.131
+./cred_spray.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
 ```
 
 Example (custom concurrency — higher job cap, shorter delay for a bigger/stabler network):
 
 ```bash
-./sweep.sh -j 20 -d 0.1 shannon 'GoldSeagull123' 192.168.118.129 192.168.118.130 192.168.118.131
+./cred_spray.sh -j 20 -d 0.1 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
 ```
 
 Any number of hosts can be passed — the script loops over every host/service pair automatically.
