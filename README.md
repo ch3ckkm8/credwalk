@@ -1,10 +1,6 @@
 # Parallel Credentialed Service Sweep
 
-A single-line Bash utility for quickly validating a set of credentials against multiple hosts across common Windows/network services — skipping any service whose port isn't open, throttling concurrency so it scales safely to large host lists, and running checks in the background for speed.
-
-```bash
-bash -c 'hosts="192.168.118.129 192.168.118.130 192.168.118.131"; declare -A ports=([nfs]=2049 [winrm]=5985 [ftp]=21 [ssh]=22 [smb]=445 [rdp]=3389 [ldap]=389 [mssql]=1433 [vnc]=5900 [wmi]=135); for h in $hosts; do for s in "${!ports[@]}"; do (timeout 2 bash -c "echo >/dev/tcp/$h/${ports[$s]}" 2>/dev/null && timeout 15 nxc $s $h -u $user1 -p $pass1 --timeout 15 2>/dev/null) & done; done; wait'
-```
+A Bash script for quickly validating a set of credentials against multiple hosts across common Windows/network services — skipping any service whose port isn't open, throttling concurrency so it scales safely to large host lists, and running checks in the background for speed.
 
 ## What it does
 
@@ -34,24 +30,37 @@ This avoids the noise and wasted time of blindly firing `nxc` at every service o
 
 ## Usage
 
-Set your credentials as environment variables, then run the sweep:
+The sweep is packaged as `sweep.sh`, taking the username, password, and target hosts as command-line arguments, with optional flags for concurrency tuning:
 
 ```bash
-bash -c 'hosts="192.168.118.129 192.168.118.130 192.168.118.131"; declare -A ports=([nfs]=2049 [winrm]=5985 [ftp]=21 [ssh]=22 [smb]=445 [rdp]=3389 [ldap]=389 [mssql]=1433 [vnc]=5900 [wmi]=135); for h in $hosts; do for s in "${!ports[@]}"; do (timeout 2 bash -c "echo >/dev/tcp/$h/${ports[$s]}" 2>/dev/null && timeout 15 nxc $s $h -u $user1 -p $pass1 --timeout 15 2>/dev/null) & done; done; wait'
+chmod +x sweep.sh
+./sweep.sh [-j max_jobs] [-d launch_delay] <user> <pass> <host1> [host2] [host3] ...
 ```
 
-### Customizing targets
-
-Edit the `hosts` variable to a space-separated list of IPs or hostnames:
+Example (defaults):
 
 ```bash
-hosts="10.10.10.1 10.10.10.2 10.10.10.3"
+./sweep.sh shannon 'GoldSeagull123' 192.168.118.129 192.168.118.130 192.168.118.131
 ```
 
-### Adjusting timeouts
+Example (custom concurrency — higher job cap, shorter delay for a bigger/stabler network):
 
-- `timeout 2` on the `/dev/tcp` probe — how long to wait for a TCP connect before declaring the port closed. Increase on slow or high-latency networks to avoid false negatives.
-- `timeout 15` on the `nxc` call — how long to allow each authentication attempt to run before killing it.
+```bash
+./sweep.sh -j 20 -d 0.1 shannon 'GoldSeagull123' 192.168.118.129 192.168.118.130 192.168.118.131
+```
+
+Any number of hosts can be passed — the script loops over every host/service pair automatically.
+
+> **Note:** Quote the password if it contains special characters (`!`, `$`, spaces, etc.) to prevent the shell from interpreting them.
+
+### Adjusting concurrency and timeouts
+
+- `-j N` — maximum number of concurrent probe/`nxc` jobs (default `10`). Lower this for smaller or more sensitive environments; raise it on stable networks for more throughput.
+- `-d N` — seconds to sleep between launching each job (default `0.3`), smoothing bursts within the concurrency cap. Accepts fractional values (e.g. `0.1`).
+- `timeout 15` on the `/dev/tcp` probe — how long to wait for a TCP connect before declaring the port closed. (Fixed in the script; edit the `timeout 15` before the `/dev/tcp` check if you need to change it.)
+- `timeout 15` on the `nxc` call — how long to allow each authentication attempt to run before killing it. (Also fixed; edit the corresponding `timeout 15` before the `nxc` call if needed.)
+
+These defaults are tuned to scale safely to larger host lists without overwhelming targets or triggering connection resets — see [Design notes](#design-notes) below.
 
 ## Requirements
 
@@ -61,9 +70,10 @@ hosts="10.10.10.1 10.10.10.2 10.10.10.3"
 
 ## Design notes
 
-- **Why `bash -c '...'` instead of running inline?** Wrapping the whole routine in a non-interactive subshell suppresses Bash job-control notifications (`[1] 12345`, `Done`, etc.) that would otherwise clutter the output when backgrounding dozens of jobs. `export`-ing the credentials beforehand makes them available to the subshell's environment without needing to pass them as positional arguments.
-- **Why `/dev/tcp` instead of `nmap`?** It keeps the tool self-contained with zero external dependencies beyond Bash and `nxc`. For larger host lists, a single batched `nmap` scan feeding into `nxc` is faster and less "noisy" on the wire (one SYN scan vs. N individual full TCP connects) — worth switching to at scale.
-- **Concurrency model:** every host/service pair gets its own subshell and background job, so runtime is bounded by the slowest individual check (≤ 17s: 2s probe + 15s auth) rather than the sum of all checks.
+- **Why a standalone script instead of a one-liner?** Taking `user`, `pass`, and `hosts` as arguments avoids hardcoding credentials or targets into the file, and running as a real script (rather than pasting into `bash -c '...'`) means it can be dropped into a `$PATH` directory, version-controlled, and reused without re-typing a long inline command each time.
+- **Why flags instead of editing the script?** `-j`/`-d` let you tune concurrency per-run (e.g. more aggressive on a stable internal lab, more conservative against a fragile or monitored target) without modifying the script itself — keeping it safe to reuse as-is across engagements.
+- **Why `/dev/tcp` instead of `nmap`?** It keeps the tool self-contained with zero external dependencies beyond Bash and `nxc`. For very large host lists, a single batched `nmap` scan feeding into `nxc` is faster and less "noisy" on the wire (one SYN scan vs. many individual full TCP connects) — worth switching to at scale.
+- **Concurrency model:** every host/service pair gets its own subshell and background job, but a `jobs -rp | wc -l` check before each launch caps how many run simultaneously (`max_jobs`), with `wait -n` used to free a slot as soon as any job finishes. A small `sleep` between launches further smooths bursts. This keeps runtime scaling roughly linearly with total host/service pairs instead of firing everything at once, which is what caused connection resets (`Connection reset by peer`) against some services (SMB and WinRM in particular) when scanning many targets in parallel with no cap.
 
 ## Disclaimer
 
