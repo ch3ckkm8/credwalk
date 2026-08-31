@@ -11,7 +11,7 @@
        based on a true story. 47 hosts. 8 services each. zero willingness for manual typing
 
           "works here"          "apparently here too"           "oh well"
-              (._.)                    (•̀ᴗ•́)و                     (⌐■_■)
+              (._.)                    (•̀ᴗ•́)و                    (⌐■_■)
               /|  \                    /|  \                     /|   \
              / \  \                   / \  \                    / \   \
 
