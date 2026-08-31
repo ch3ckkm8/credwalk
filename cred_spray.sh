@@ -14,8 +14,8 @@
 #   -d N   Seconds to sleep between launching each job (default: 0.3)
 #
 # Examples:
-#   ./sweep.sh shannon 'GoldSeagull123' 192.168.118.129 192.168.118.130 192.168.118.131
-#   ./sweep.sh -j 20 -d 0.1 shannon 'GoldSeagull123' 192.168.118.129 192.168.118.130
+#   ./sweep.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+#   ./sweep.sh -j 20 -d 0.1 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130
 
 set -u
 
