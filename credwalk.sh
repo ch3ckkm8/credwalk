@@ -37,7 +37,7 @@ printf '%s\n' '
               /|  \                    /|  \                     /|   \
              / \  \                   / \  \                    / \   \
 
-       [1 host · 1 service]    [2 hosts · 3 services]     [17 hosts · 5 services]
+       [1 host · 1 service]    [2 hosts · 3 services]     [17 hosts · 21 services]
 '
 
 set -u
