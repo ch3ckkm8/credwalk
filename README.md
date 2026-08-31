@@ -1,5 +1,21 @@
-# Parallel Credentialed Service Sweep
 
+	  ██████╗██████╗ ███████╗██████╗ ██╗    ██╗ █████╗ ██╗     ██╗  ██╗
+	 ██╔════╝██╔══██╗██╔════╝██╔══██╗██║    ██║██╔══██╗██║     ██║ ██╔╝
+	 ██║     ██████╔╝█████╗  ██║  ██║██║ █╗ ██║███████║██║     █████╔╝
+	 ██║     ██╔══██╗██╔══╝  ██║  ██║██║███╗██║██╔══██║██║     ██╔═██╗
+	 ╚██████╗██║  ██║███████╗██████╔╝╚███╔███╔╝██║  ██║███████╗██║  ██╗
+	  ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+
+		         taking the credential for a walk
+
+       based on a true story. 47 hosts. 8 services each. zero willingness for manual typing
+
+          "works here"          "apparently here too"           "oh well"
+              (._.)                    (•̀ᴗ•́)و                     (⌐■_■)
+              /|  \                    /|  \                     /|   \
+             / \  \                   / \  \                    / \   \
+
+       [1 host · 1 service]    [2 hosts · 3 services]     [17 hosts · 5 services]
 A Bash script for quickly validating a set of credentials against multiple hosts across common Windows/network services — skipping any service whose port isn't open, throttling concurrency so it scales safely to large host lists, and running checks in the background for speed.
 
 ## What it does
