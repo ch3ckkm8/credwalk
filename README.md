@@ -46,23 +46,23 @@ This avoids the noise and wasted time of blindly firing `nxc` at every service o
 
 ## Usage
 
-The sweep is packaged as `cred_spray.sh`, taking the username, password, and target hosts as command-line arguments, with optional flags for concurrency and timeout tuning:
+The sweep is packaged as `credwalk.sh`, taking the username, password, and target hosts as command-line arguments, with optional flags for concurrency and timeout tuning:
 
 ```bash
-chmod +x cred_spray.sh
-./cred_spray.sh [-j max_jobs] [-d launch_delay] [-t probe_timeout] [-n nxc_timeout] <user> <pass> <host1> [host2] [host3] ...
+chmod +x credwalk.sh
+./credwalk.sh [-j max_jobs] [-d launch_delay] [-t probe_timeout] [-n nxc_timeout] <user> <pass> <host1> [host2] [host3] ...
 ```
 
 Example (defaults):
 
 ```bash
-./cred_spray.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+./credwalk.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
 ```
 
 Example (custom concurrency and timeouts — higher job cap, shorter delay, faster port probe, longer nxc window):
 
 ```bash
-./cred_spray.sh -j 20 -d 0.1 -t 5 -n 20 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
 ```
 
 Any number of hosts can be passed — the script loops over every host/service pair automatically.
