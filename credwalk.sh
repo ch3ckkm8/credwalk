@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# cred_spray.sh — Parallel credentialed service sweep using NetExec (nxc)
+# credwalk.sh — Parallel credentialed service sweep using NetExec (nxc)
 #
 # Probes each host/service port pair, skips closed ports, and only runs
 # nxc against services that are actually open — with throttled concurrency
 # so it scales safely to large host lists.
 #
 # Usage:
-#   ./cred_spray.sh [-j max_jobs] [-d launch_delay] [-t probe_timeout] [-n nxc_timeout] <user> <pass> <host1> [host2] [host3] ...
+#   ./credwalk.sh [-j max_jobs] [-d launch_delay] [-t probe_timeout] [-n nxc_timeout] <user> <pass> <host1> [host2] [host3] ...
 #
 # Options:
 #   -j N   Max number of concurrent probe/nxc jobs (default: 10)
@@ -16,8 +16,8 @@
 #   -n N   Seconds to allow each nxc authentication attempt to run (default: 15)
 #
 # Examples:
-#   ./cred_spray.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
-#   ./cred_spray.sh -j 20 -d 0.1 -t 5 -n 20 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130
+#   ./credwalk.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+#   ./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130
 
 printf '%s\n' '
 
