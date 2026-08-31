@@ -1,10 +1,10 @@
 # Parallel Credentialed Service Sweep
 
+A single-line Bash utility for quickly validating a set of credentials against multiple hosts across common Windows/network services — skipping any service whose port isn't open, throttling concurrency so it scales safely to large host lists, and running checks in the background for speed.
+
 ```bash
 bash -c 'hosts="192.168.118.129 192.168.118.130 192.168.118.131"; declare -A ports=([nfs]=2049 [winrm]=5985 [ftp]=21 [ssh]=22 [smb]=445 [rdp]=3389 [ldap]=389 [mssql]=1433 [vnc]=5900 [wmi]=135); for h in $hosts; do for s in "${!ports[@]}"; do (timeout 2 bash -c "echo >/dev/tcp/$h/${ports[$s]}" 2>/dev/null && timeout 15 nxc $s $h -u $user1 -p $pass1 --timeout 15 2>/dev/null) & done; done; wait'
 ```
-
-A single-line Bash utility for quickly validating a set of credentials against multiple hosts across common Windows/network services — skipping any service whose port isn't open, throttling concurrency so it scales safely to large host lists, and running checks in the background for speed.
 
 ## What it does
 
