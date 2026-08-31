@@ -53,16 +53,18 @@ chmod +x credwalk.sh
 ./credwalk.sh [-j max_jobs] [-d launch_delay] [-t probe_timeout] [-n nxc_timeout] <user> <pass> <host1> [host2] [host3] ...
 ```
 
-Example (defaults):
+Examples (defaults):
 
 ```bash
 ./credwalk.sh bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+./credwalk.sh $user1 $pass1 $target1 $target2 $target3
 ```
 
-Example (custom concurrency and timeouts — higher job cap, shorter delay, faster port probe, longer nxc window):
+Examples (custom concurrency and timeouts — higher job cap, shorter delay, faster port probe, longer nxc window):
 
 ```bash
 ./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 bob 'b0bsp4ss1sth3b3st' 192.168.118.129 192.168.118.130 192.168.118.131
+./credwalk.sh -j 20 -d 0.1 -t 5 -n 20 $user1 $pass1 $target1 $target2 $target3
 ```
 
 Any number of hosts can be passed — the script loops over every host/service pair automatically.
